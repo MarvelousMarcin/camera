@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Canvas from "./Canvas";
 import PickPoints from "./PickPoints";
-import getSampleData from "./sample_data/sample";
 
 const App = () => {
   const [pickPoint, setPickPoints] = useState(true);
