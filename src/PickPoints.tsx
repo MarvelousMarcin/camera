@@ -1,7 +1,6 @@
 import getSampleData from "./sample_data/sample";
 import fot from "./assets/camera.png";
 import getSpecial from "./sample_data/special";
-import getSimple from "./sample_data/simple";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import getRectFromPoint from "./sample_data/getRectFromPoint";
