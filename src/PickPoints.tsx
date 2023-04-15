@@ -59,15 +59,7 @@ const PickPoints = ({ setRects, setPickPoints }) => {
           </motion.section>
         )}
         <h1 className="text-3xl font-bold">Options</h1>
-        <button
-          className="text-xl"
-          onClick={() => {
-            setRects(getSimple());
-            setPickPoints(false);
-          }}
-        >
-          Simple View
-        </button>
+
         <button
           className="text-xl"
           onClick={() => {
