@@ -5,14 +5,19 @@ import PickPoints from "./PickPoints";
 const App = () => {
   const [pickPoint, setPickPoints] = useState(true);
   const [rects, setRects] = useState([]);
+  const [spec, setSpec] = useState(false);
 
   return (
     <>
       {pickPoint && (
-        <PickPoints setPickPoints={setPickPoints} setRects={setRects} />
+        <PickPoints
+          setPickPoints={setPickPoints}
+          setRects={setRects}
+          setSpec={setSpec}
+        />
       )}
       {!pickPoint && (
-        <Canvas rects={rects} setPickPoints={setPickPoints}>
+        <Canvas spec={spec} rects={rects} setPickPoints={setPickPoints}>
           Test
         </Canvas>
       )}

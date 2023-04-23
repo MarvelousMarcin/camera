@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import getRectFromPoint from "./sample_data/getRectFromPoint";
 
-const PickPoints = ({ setRects, setPickPoints }) => {
+const PickPoints = ({ setRects, setPickPoints, setSpec }) => {
   const [pickOwnPoint, setPickOwnPoint] = useState(false);
   const [input, setInput] = useState("");
 
@@ -73,6 +73,7 @@ const PickPoints = ({ setRects, setPickPoints }) => {
           onClick={() => {
             setRects(getSpecial());
             setPickPoints(false);
+            setSpec(true);
           }}
         >
           Get special look
@@ -82,6 +83,7 @@ const PickPoints = ({ setRects, setPickPoints }) => {
           className="text-xl"
           onClick={() => {
             setRects(getSampleData());
+            setSpec(true);
             setPickOwnPoint(true);
           }}
         >

@@ -3,7 +3,7 @@ import createRectPoints from "../func/createRectPoints";
 const getSpecial = () => {
   let rects = [];
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 10; i++) {
     rects.push(createRectPoints());
   }
 

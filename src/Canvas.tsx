@@ -1,7 +1,7 @@
 import { useEffect, createRef } from "react";
 import drawRec from "./func/drawRect";
 import translate from "./func/translate";
-function Canvas({ setPickPoints, rects }) {
+function Canvas({ setPickPoints, rects, spec }) {
   const canvasRef = createRef<HTMLCanvasElement>();
   let focal = 200;
 
@@ -9,7 +9,7 @@ function Canvas({ setPickPoints, rects }) {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
 
-    drawRec(ctx, rects, focal);
+    drawRec(ctx, rects, focal, spec);
   };
 
   const initRender = (ctx: CanvasRenderingContext2D) => {
