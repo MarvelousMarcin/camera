@@ -1,5 +1,4 @@
 import map3Dto2D from "./map3Dto2D";
-import calcDistance from "./calcDistance";
 
 function getWallOrientation(normal, point) {
   const viewerPosition = { x: 0, y: 0, z: 0 };
@@ -21,7 +20,7 @@ function getWallOrientation(normal, point) {
   }
 }
 
-function getNormal(p1, p2, p3, text) {
+function getNormal(p1, p2, p3) {
   const normal = {
     x: (p2.y - p1.y) * (p3.z - p1.z) - (p2.z - p1.z) * (p3.y - p1.y),
     y: (p2.z - p1.z) * (p3.x - p1.x) - (p2.x - p1.x) * (p3.z - p1.z),
@@ -30,188 +29,126 @@ function getNormal(p1, p2, p3, text) {
   return normal;
 }
 
-const drawRec = (ctx, rect, focal) => {
-  const orientationFront = getWallOrientation(
-    getNormal(rect[0], rect[1], rect[2], "Front"),
-    rect[0]
+function calc_vector(a, b, c) {
+  const A = [a.x - c.x, a.y - c.y, a.z - c.z];
+  const B = [b.x - c.x, b.y - c.y, b.z - c.z];
+  const N = [
+    A[2] * B[1] - A[1] * B[2],
+    A[1] * B[0] - A[0] * B[1],
+    A[0] * B[2] - A[2] * B[0],
+  ];
+  return N;
+}
+
+function calc_d(N, c) {
+  return -(N[0] * c.y + N[2] * c.z + N[1] * c.y);
+}
+
+function calc_t(N, P, D) {
+  return N[0] * P.x + N[2] * P.z + N[1] * P.y + D;
+}
+
+function compare_triangles(triangle1, triangle2) {
+  let N = calc_vector(
+    triangle1.points[0],
+    triangle1.points[1],
+    triangle1.points[2]
   );
 
-  const orientationBack = getWallOrientation(
-    getNormal(rect[4], rect[6], rect[5], "Back"),
-    rect[4]
+  const D = calc_d(N, triangle1.points[2]);
+
+  if (calc_t(N, triangle2.points[0], D) > 0) {
+    return -1;
+  }
+  if (calc_t(N, triangle2.points[1], D) > 0) {
+    return -1;
+  }
+  if (calc_t(N, triangle2.points[2], D) > 0) {
+    return -1;
+  }
+  return 1;
+}
+
+function getDistance({ x, y, z }) {
+  return Math.sqrt(x * x + y * y + z * z);
+}
+
+function getPolygonMidpoint(polygon) {
+  let numPoints = polygon.length;
+  let xSum = 0,
+    ySum = 0,
+    zSum = 0;
+
+  for (let i = 0; i < numPoints; i++) {
+    xSum += polygon[i].x;
+    ySum += polygon[i].y;
+    zSum += polygon[i].z;
+  }
+
+  return { x: xSum / numPoints, y: ySum / numPoints, z: zSum / numPoints };
+}
+
+function checkPolygonPosition(polygon1, polygon2) {
+  return (
+    getDistance(getPolygonMidpoint(polygon2.points)) -
+    getDistance(getPolygonMidpoint(polygon1.points))
   );
+}
 
-  const orientationLeft = getWallOrientation(
-    getNormal(rect[0], rect[3], rect[7], "Left"),
-    rect[0]
-  );
+const drawRec = (ctx, rects, focal) => {
+  const allWalls = [];
+  rects.forEach((rect) => {
+    const front2d = [rect[0], rect[1], rect[2], rect[3]];
 
-  const orientationRight = getWallOrientation(
-    getNormal(rect[1], rect[5], rect[6], "Right"),
-    rect[1]
-  );
+    const back2d = [rect[4], rect[5], rect[6], rect[7]];
 
-  const orientationTop = getWallOrientation(
-    getNormal(rect[3], rect[6], rect[7], "Top"),
-    rect[3]
-  );
-  const orientationBottom = getWallOrientation(
-    getNormal(rect[0], rect[4], rect[5], "Bottom"),
-    rect[0]
-  );
+    const left2d = [rect[0], rect[3], rect[7], rect[4]];
 
-  const maped = rect.map((point) => map3Dto2D(point, focal));
+    const right2d = [rect[1], rect[5], rect[6], rect[2]];
 
-  const front2d = [maped[0], maped[1], maped[2], maped[3]];
+    const bottom2d = [rect[0], rect[4], rect[5], rect[1]];
 
-  const back2d = [maped[4], maped[5], maped[6], maped[7]];
+    const top2d = [rect[3], rect[7], rect[6], rect[2]];
+    allWalls.push({ points: front2d, side: "front" });
+    allWalls.push({ points: back2d, side: "back" });
+    allWalls.push({ points: right2d, side: "right" });
+    allWalls.push({ points: bottom2d, side: "bottom" });
+    allWalls.push({ points: left2d, side: "left" });
+    allWalls.push({ points: top2d, side: "top" });
+  });
 
-  const left2d = [maped[0], maped[3], maped[7], maped[4]];
+  allWalls.sort((poly1, poly2) => {
+    return checkPolygonPosition(poly1, poly2);
+  });
 
-  const right2d = [maped[1], maped[5], maped[6], maped[2]];
+  allWalls.forEach((wall) => {
+    const orientationFront = getWallOrientation(
+      getNormal(
+        wall.points[0],
+        wall.side === "top" || wall.side === "back"
+          ? wall.points[2]
+          : wall.points[1],
+        wall.side === "top" || wall.side === "back"
+          ? wall.points[1]
+          : wall.points[2]
+      ),
+      wall.points[0]
+    );
 
-  const bottom2d = [maped[0], maped[4], maped[5], maped[1]];
-
-  const top2d = [maped[3], maped[7], maped[6], maped[2]];
-
-  if (orientationFront == "hidden") {
-    // first page
-    ctx.beginPath();
-    ctx.moveTo(front2d[0].x, front2d[0].y);
-    for (let i = 1; i < 4; i++) {
-      ctx.lineTo(front2d[i].x, front2d[i].y);
+    if (orientationFront === "visible") {
+      const maped = wall.points.map((point) => map3Dto2D(point, focal));
+      ctx.beginPath();
+      ctx.moveTo(maped[0].x, maped[0].y);
+      for (let i = 1; i < 4; i++) {
+        ctx.lineTo(maped[i].x, maped[i].y);
+      }
+      ctx.lineTo(maped[0].x, maped[0].y);
+      ctx.stroke();
+      ctx.fillStyle = "green";
+      ctx.fill();
+      ctx.closePath();
     }
-    ctx.lineTo(front2d[0].x, front2d[0].y);
-    ctx.stroke();
-    ctx.fillStyle = "purple";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  if (orientationBack == "hidden") {
-    // behind page
-    ctx.beginPath();
-    ctx.moveTo(back2d[0].x, back2d[0].y);
-    for (let i = 1; i < 4; i++) {
-      ctx.lineTo(back2d[i].x, back2d[i].y);
-    }
-    ctx.lineTo(back2d[0].x, back2d[0].y);
-    ctx.stroke();
-    ctx.fillStyle = "blue";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  if (orientationRight == "hidden") {
-    // right page
-    ctx.beginPath();
-    ctx.moveTo(right2d[0].x, right2d[0].y);
-    for (let i = 1; i < 4; i++) {
-      ctx.lineTo(right2d[i].x, right2d[i].y);
-    }
-    ctx.lineTo(right2d[0].x, right2d[0].y);
-    ctx.stroke();
-    ctx.fillStyle = "orange";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  if (orientationLeft == "hidden") {
-    // left page
-    ctx.beginPath();
-    ctx.moveTo(left2d[0].x, left2d[0].y);
-    for (let i = 1; i < 4; i++) {
-      ctx.lineTo(left2d[i].x, left2d[i].y);
-    }
-    ctx.lineTo(left2d[0].x, left2d[0].y);
-    ctx.stroke();
-    ctx.fillStyle = "pink";
-    ctx.fill();
-    ctx.closePath();
-  }
-  if (orientationTop == "visible") {
-    // top page
-    ctx.beginPath();
-    ctx.moveTo(top2d[0].x, top2d[0].y);
-    for (let i = 1; i < 4; i++) {
-      ctx.lineTo(top2d[i].x, top2d[i].y);
-    }
-    ctx.lineTo(top2d[0].x, top2d[0].y);
-    ctx.stroke();
-    ctx.fillStyle = "yellow";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  if (orientationBottom == "visible") {
-    // bottom page
-    ctx.beginPath();
-    ctx.moveTo(bottom2d[0].x, bottom2d[0].y);
-    for (let i = 1; i < 4; i++) {
-      ctx.lineTo(bottom2d[i].x, bottom2d[i].y);
-    }
-    ctx.lineTo(bottom2d[0].x, bottom2d[0].y);
-    ctx.stroke();
-    ctx.fillStyle = "green";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  if (orientationRight == "visible") {
-    // right page
-    ctx.beginPath();
-    ctx.moveTo(right2d[0].x, right2d[0].y);
-    for (let i = 1; i < 4; i++) {
-      ctx.lineTo(right2d[i].x, right2d[i].y);
-    }
-    ctx.lineTo(right2d[0].x, right2d[0].y);
-    ctx.stroke();
-    ctx.fillStyle = "orange";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  if (orientationLeft == "visible") {
-    // left page
-    ctx.beginPath();
-    ctx.moveTo(left2d[0].x, left2d[0].y);
-    for (let i = 1; i < 4; i++) {
-      ctx.lineTo(left2d[i].x, left2d[i].y);
-    }
-    ctx.lineTo(left2d[0].x, left2d[0].y);
-    ctx.stroke();
-    ctx.fillStyle = "pink";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  if (orientationFront == "visible") {
-    // first page
-    ctx.beginPath();
-    ctx.moveTo(front2d[0].x, front2d[0].y);
-    for (let i = 1; i < 4; i++) {
-      ctx.lineTo(front2d[i].x, front2d[i].y);
-    }
-    ctx.lineTo(front2d[0].x, front2d[0].y);
-    ctx.stroke();
-    ctx.fillStyle = "purple";
-    ctx.fill();
-    ctx.closePath();
-  }
-
-  if (orientationBack == "visible") {
-    // behind page
-    ctx.beginPath();
-    ctx.moveTo(back2d[0].x, back2d[0].y);
-    for (let i = 1; i < 4; i++) {
-      ctx.lineTo(back2d[i].x, back2d[i].y);
-    }
-    ctx.lineTo(back2d[0].x, back2d[0].y);
-    ctx.stroke();
-    ctx.fillStyle = "blue";
-    ctx.fill();
-    ctx.closePath();
-  }
+  });
 };
 
 export default drawRec;

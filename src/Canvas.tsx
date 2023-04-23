@@ -1,7 +1,6 @@
 import { useEffect, createRef } from "react";
 import drawRec from "./func/drawRect";
 import translate from "./func/translate";
-import calcDistance from "./func/calcDistance";
 function Canvas({ setPickPoints, rects }) {
   const canvasRef = createRef<HTMLCanvasElement>();
   let focal = 200;
@@ -10,9 +9,7 @@ function Canvas({ setPickPoints, rects }) {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
 
-    rects.forEach((rect) => {
-      drawRec(ctx, rect, focal);
-    });
+    drawRec(ctx, rects, focal);
   };
 
   const initRender = (ctx: CanvasRenderingContext2D) => {
@@ -30,12 +27,7 @@ function Canvas({ setPickPoints, rects }) {
     window.addEventListener("keydown", (key) => {
       if (key.key === "d") {
         const newPositions = [];
-        rects.sort((obj1, obj2) => {
-          return (
-            calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-            calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-          );
-        });
+
         rects.forEach((rec) => {
           const newRect = [];
           rec.forEach((point) => {
@@ -49,12 +41,7 @@ function Canvas({ setPickPoints, rects }) {
 
       if (key.key === "s") {
         const newPositions = [];
-        rects.sort((obj1, obj2) => {
-          return (
-            calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-            calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-          );
-        });
+
         rects.forEach((rec) => {
           const newRect = [];
           rec.forEach((point) => {
@@ -68,12 +55,7 @@ function Canvas({ setPickPoints, rects }) {
 
       if (key.key === "a") {
         const newPositions = [];
-        rects.sort((obj1, obj2) => {
-          return (
-            calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-            calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-          );
-        });
+
         rects.forEach((rec) => {
           const newRect = [];
           rec.forEach((point) => {
@@ -87,12 +69,7 @@ function Canvas({ setPickPoints, rects }) {
 
       if (key.key === "w") {
         const newPositions = [];
-        rects.sort((obj1, obj2) => {
-          return (
-            calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-            calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-          );
-        });
+
         rects.forEach((rec) => {
           const newRect = [];
           rec.forEach((point) => {
@@ -106,12 +83,7 @@ function Canvas({ setPickPoints, rects }) {
 
       if (key.key === "q") {
         const newPositions = [];
-        rects.sort((obj1, obj2) => {
-          return (
-            calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-            calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-          );
-        });
+
         rects.forEach((rec) => {
           const newRect = [];
           rec.forEach((point) => {
@@ -125,12 +97,7 @@ function Canvas({ setPickPoints, rects }) {
 
       if (key.key === "e") {
         const newPositions = [];
-        rects.sort((obj1, obj2) => {
-          return (
-            calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-            calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-          );
-        });
+
         rects.forEach((rec) => {
           const newRect = [];
           rec.forEach((point) => {
@@ -153,20 +120,9 @@ function Canvas({ setPickPoints, rects }) {
 
       if (key.key === "i") {
         const newPositions = [];
-        rects.sort((obj1, obj2) => {
-          return (
-            calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-            calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-          );
-        });
+
         rects.forEach((rec) => {
           const newRect = [];
-          rects.sort((obj1, obj2) => {
-            return (
-              calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-              calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-            );
-          });
           rec.forEach((point) => {
             const newPoint = translate(point, "rotateX_UP");
             newRect.push(newPoint);
@@ -178,12 +134,7 @@ function Canvas({ setPickPoints, rects }) {
 
       if (key.key === "k") {
         const newPositions = [];
-        rects.sort((obj1, obj2) => {
-          return (
-            calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-            calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-          );
-        });
+
         rects.forEach((rec) => {
           const newRect = [];
           rec.forEach((point) => {
@@ -197,12 +148,7 @@ function Canvas({ setPickPoints, rects }) {
 
       if (key.key === "j") {
         const newPositions = [];
-        rects.sort((obj1, obj2) => {
-          return (
-            calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-            calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-          );
-        });
+
         rects.forEach((rec) => {
           const newRect = [];
           rec.forEach((point) => {
@@ -216,12 +162,7 @@ function Canvas({ setPickPoints, rects }) {
 
       if (key.key === "l") {
         const newPositions = [];
-        rects.sort((obj1, obj2) => {
-          return (
-            calcDistance(obj2[0], { x: 0, y: 0, z: 0 }) -
-            calcDistance(obj1[0], { x: 0, y: 0, z: 0 })
-          );
-        });
+
         rects.forEach((rec) => {
           const newRect = [];
           rec.forEach((point) => {
